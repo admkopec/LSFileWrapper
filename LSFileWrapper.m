@@ -7,14 +7,14 @@
 #import "LSFileWrapper.h"
 
 @interface LSFileWrapper ()
-@property (strong, nonatomic) NSString *filename;
-@property (assign, nonatomic) BOOL updated;
-
 @property (weak, nonatomic) LSFileWrapper *parent;
 @property (strong, nonatomic) NSMutableDictionary *fileWrappers;
+@property (strong, nonatomic) NSString *filename;
 @property (strong, nonatomic) NSURL *writtenURL;
 @property (strong, nonatomic) id<NSObject> content;
+@property (assign, nonatomic) BOOL updated;
 @property (assign, nonatomic) BOOL deleted;
+@property (assign, nonatomic) BOOL cacheFile;
 @end
 
 @interface LSFileWrapper (Internal)
@@ -26,22 +26,24 @@
 @end
 
 @implementation LSFileWrapper
-@synthesize filename;
-@synthesize updated;
-@synthesize isDirectory;
-@synthesize cacheFile;
-
 @synthesize parent;
 @synthesize fileWrappers;
+@synthesize filename;
 @synthesize writtenURL;
 @synthesize content;
+@synthesize updated;
 @synthesize deleted;
+@synthesize cacheFile;
+@synthesize isDirectory;
+
+
 
 - (id)initFile
 {
     self = [super self];
-    if(self) {
+    if (self) {
         isDirectory = NO;
+        _reserve = 0;
     }
     return self;
 }
@@ -49,8 +51,9 @@
 - (id)initDirectory
 {
     self = [super init];
-    if(self) {
+    if (self) {
         isDirectory = YES;
+        _reserve = 0;
         fileWrappers = [[NSMutableDictionary alloc] init];
     }
     return self;
@@ -59,17 +62,18 @@
 - (id)initWithURL:(NSURL *)url isDirectory:(BOOL)isDir
 {
     self = [super init];
-    if(self) {
+    if (self) {
         filename = [url lastPathComponent];
-        if([[NSFileManager defaultManager] fileExistsAtPath:[url path] isDirectory:&isDir]) {
+        if ([[NSFileManager defaultManager] fileExistsAtPath:[url path] isDirectory:&isDir]) {
             writtenURL = url;
         }
         isDirectory = isDir;
+        _reserve = 0;
         
-        if(isDirectory) {
+        if (isDirectory) {
             fileWrappers = [[NSMutableDictionary alloc] init];
             
-            for(NSURL *childUrl in [[NSFileManager defaultManager] contentsOfDirectoryAtURL:url
+            for (NSURL *childUrl in [[NSFileManager defaultManager] contentsOfDirectoryAtURL:url
                                                                  includingPropertiesForKeys:nil
                                                                                     options:0
                                                                                       error:nil]) {
@@ -82,24 +86,13 @@
     return self;
 }
 
-- (void)loadCache
-{
-    if(deleted) {
-        return;
-    }
-    if(isDirectory) {
-        for(LSFileWrapper *fileWrapper in [fileWrappers objectEnumerator]) {
-            [fileWrapper loadCache];
-        }
-    }
-    else if(cacheFile && writtenURL && (!content || !updated)) {
-        content = [NSData dataWithContentsOfURL:writtenURL];
-    }
-}
-
 - (NSData *)data
 {
-    if([content isKindOfClass:[NSData class]]) {
+    if (content == nil && writtenURL != nil) {
+        content = [NSData dataWithContentsOfURL:writtenURL];
+        cacheFile = YES;
+    }
+    if ([content isKindOfClass:[NSData class]]) {
         return (NSData *)content;
     }
     return nil;
@@ -107,10 +100,14 @@
 
 - (NSString *)string
 {
-    if([content isKindOfClass:[NSData class]]) {
+    if (content == nil && writtenURL != nil) {
+        content = [NSData dataWithContentsOfURL:writtenURL];
+        cacheFile = YES;
+    }
+    if ([content isKindOfClass:[NSData class]]) {
         content = [[NSString alloc] initWithData:(NSData*)content encoding:NSUTF8StringEncoding];
     }
-    if([content isKindOfClass:[NSString class]]) {
+    if ([content isKindOfClass:[NSString class]]) {
         return (NSString *)content;
     }
     return nil;
@@ -118,18 +115,22 @@
 
 - (NSDictionary *)dictionary
 {
-    if([content isKindOfClass:[NSData class]]) {
+    if (content == nil && writtenURL != nil) {
+        content = [NSData dataWithContentsOfURL:writtenURL];
+        cacheFile = YES;
+    }
+    if ([content isKindOfClass:[NSData class]]) {
         id propList = [NSPropertyListSerialization propertyListWithData:(NSData*)content
                                                                 options:NSPropertyListImmutable
                                                                  format:NULL
                                                                   error:NULL];
         
-        if([propList isKindOfClass:[NSDictionary class]])
+        if ([propList isKindOfClass:[NSDictionary class]])
         {
             content = (NSDictionary*)propList;
         }
     }
-    if([content isKindOfClass:[NSDictionary class]]) {
+    if ([content isKindOfClass:[NSDictionary class]]) {
         return (NSDictionary *)content;
     }
     return nil;
@@ -137,10 +138,15 @@
 
 - (UIImage *)image
 {
-    if([content isKindOfClass:[NSData class]]) {
+    if (content == nil && writtenURL != nil) {
+        content = [UIImage imageWithContentsOfFile:writtenURL.path];
+        cacheFile = YES;
+        return (UIImage *)content;
+    }
+    if ([content isKindOfClass:[NSData class]]) {
         content = [UIImage imageWithData:(NSData *)content];
     }
-    if([content isKindOfClass:[UIImage class]]) {
+    if ([content isKindOfClass:[UIImage class]]) {
         return (UIImage *)content;
     }
     return nil;
@@ -148,14 +154,11 @@
 
 - (void)updateContent:(id<NSObject>)content_
 {
-    if(isDirectory) {
+    if (isDirectory) {
         @throw [NSException exceptionWithName:NSInternalInconsistencyException
                                        reason:@"LSFileWrapper directory is not a file."
                                      userInfo:nil];
         return;
-    }
-    if(!content_) {
-        deleted = YES;
     }
     content = content_;
     updated = YES;
@@ -163,7 +166,31 @@
 
 - (void)deleteContent
 {
-    [self updateContent:nil];
+    content = nil;
+    updated = NO;
+    deleted = YES;
+}
+
+- (void)incReserve
+{
+    self.reserve++;
+}
+
+- (void)decReserve
+{
+    self.reserve--;
+}
+
+- (void)deleteUnreserved
+{
+    if (isDirectory && fileWrappers.count > 0) {
+        for (LSFileWrapper *fileWrapper in [fileWrappers objectEnumerator]) {
+            [fileWrapper deleteUnreserved];
+        }
+    }
+    else if (self.reserve < 1) {
+        [self deleteContent];
+    }
 }
 
 - (LSFileWrapper *)fileWrapperWithPath:(NSString *)path
@@ -177,17 +204,17 @@
     NSString *filename_ = [path lastPathComponent];
     LSFileWrapper *dirFileWrapper = [self walkDirectoryPath:dirpath create:create];
     
-    if(!dirFileWrapper) {
+    if (!dirFileWrapper) {
         return nil;
     }
     
     LSFileWrapper *fileWrapper = [dirFileWrapper.fileWrappers objectForKey:filename_];
     
-    if(!fileWrapper) {
-        if(!create) {
+    if (!fileWrapper) {
+        if (!create) {
             return nil;
         }
-        if(isDir) {
+        if (isDir) {
             fileWrapper = [[[self class] alloc] initDirectory];
         }
         else {
@@ -220,7 +247,7 @@
 - (void)setContent:(id<NSObject>)content_ withFilename:(NSString *)filename_
 {
     LSFileWrapper *fileWrapper = [fileWrappers objectForKey:filename_];
-    if(!fileWrapper) {
+    if (!fileWrapper) {
         fileWrapper = [[LSFileWrapper alloc] initFile];
         [self setFileWrapper:fileWrapper filename:filename_ replace:YES];
     }
@@ -231,12 +258,12 @@
 {
     NSMutableArray *updates = [[NSMutableArray alloc] init];
 
-    if(!updated && !isDirectory) {
+    if (!updated && !isDirectory) {
         return YES;
     }
-    if(parent) {
+    if (parent) {
         BOOL parentOK = [self getParentUpdates:updates withURL:url];
-        if(parentOK == NO) {
+        if (parentOK == NO) {
             @throw [NSException exceptionWithName:NSInternalInconsistencyException
                                            reason:@"LSFileWrapper child cannot be written to a different directory"
                                          userInfo:nil];
@@ -253,13 +280,13 @@
 
 - (LSFileWrapper *)walkDirectoryPath:(NSString *)path create:(BOOL)create
 {
-    if(!isDirectory) {
+    if (!isDirectory) {
         @throw [NSException exceptionWithName:NSInternalInconsistencyException
                                        reason:@"LSFileWrapper file is not a directory."
                                      userInfo:nil];
         return nil;
     }
-    if([path hasPrefix:@"/"]) {
+    if ([path hasPrefix:@"/"]) {
         @throw [NSException exceptionWithName:NSInternalInconsistencyException
                                        reason:@"path must be relative"
                                      userInfo:nil];
@@ -270,11 +297,11 @@
     LSFileWrapper *dirFileWrapper = self;
     LSFileWrapper *parentWrapper;
     
-    for(NSString *component in pathComponents) {
+    for (NSString *component in pathComponents) {
         parentWrapper = dirFileWrapper;
         dirFileWrapper = [dirFileWrapper.fileWrappers objectForKey:component];
-        if(!dirFileWrapper) {
-            if(!create) {
+        if (!dirFileWrapper) {
+            if (!create) {
                 return nil;
             }
             dirFileWrapper = [[[self class] alloc] initDirectory];
@@ -287,40 +314,40 @@
 
 - (NSString *)setFileWrapper:(LSFileWrapper *)fileWrapper filename:(NSString *)filename_ replace:(BOOL)replace
 {
-    if(!isDirectory) {
+    if (!isDirectory) {
         @throw [NSException exceptionWithName:NSInternalInconsistencyException
                                        reason:@"LSFileWrapper file is not a directory."
                                      userInfo:nil];
         return nil;
     }
-    if(fileWrapper.parent) {
+    if (fileWrapper.parent) {
         @throw [NSException exceptionWithName:NSInternalInconsistencyException
                                        reason:@"LSFileWrapper can only have one parent."
                                      userInfo:nil];
         return nil;
     }
-    if(fileWrapper == self) {
+    if (fileWrapper == self) {
         @throw [NSException exceptionWithName:NSInternalInconsistencyException
                                        reason:@"Cannot add LSFileWrapper to itself."
                                      userInfo:nil];
         return nil;
     }
     
-    if(fileWrapper) {
-        if(!replace) {
+    if (fileWrapper) {
+        if (!replace) {
             NSString *basename = [filename_ stringByDeletingPathExtension];
             NSString *extension = [filename_ pathExtension];
             NSString *format;
             NSUInteger num = 0;
-            if(extension.length > 0) {
+            if (extension.length > 0) {
                 format = [NSString stringWithFormat:@"%@ %%d.%@", basename, extension];
             }
             else {
                 format = [NSString stringWithFormat:@"%@ %%d", basename];
             }
-            while(true) {
+            while (true) {
                 LSFileWrapper *existing = [fileWrappers objectForKey:filename_];
-                if(!existing || existing.deleted) {
+                if (!existing || existing.deleted) {
                     break;
                 }
                 filename_ = [NSString stringWithFormat:format, ++num];
@@ -330,9 +357,9 @@
         fileWrapper.filename = filename_;
         [fileWrappers setObject:fileWrapper forKey:filename_];
     }
-    else if(replace) {
+    else if (replace) {
         LSFileWrapper *existing = [fileWrappers objectForKey:filename_];
-        if(existing.writtenURL) {
+        if (existing.writtenURL) {
             existing.deleted = YES;
         }
         else {
@@ -351,7 +378,7 @@
     
     static const NSUInteger BufferSize = 1024*1024;
     NSFileHandle *handle = [NSFileHandle fileHandleForWritingToURL:url error:outError];
-    if(!handle) {
+    if (!handle) {
         return NO;
     }
     ALAssetRepresentation *rep = [asset_ defaultRepresentation];
@@ -362,7 +389,7 @@
     
     do {
         bytesRead = [rep getBytes:buffer fromOffset:bytesOffset length:BufferSize error:outError];
-        if(!bytesRead) {
+        if (!bytesRead) {
             break;
         }
         bytesOffset += bytesRead;
@@ -385,10 +412,10 @@
     NSData *imageData;
     NSString *extension = [url pathExtension];
     
-    if([extension isEqualToString:@"png"]) {
+    if ([extension isEqualToString:@"png"]) {
         imageData = UIImagePNGRepresentation(image_);
     }
-    else if([extension isEqualToString:@"jpg"] || [extension isEqualToString:@"jpeg"]) {
+    else if ([extension isEqualToString:@"jpg"] || [extension isEqualToString:@"jpeg"]) {
         imageData = UIImageJPEGRepresentation(image_, 1);
     }
     
@@ -397,20 +424,20 @@
 
 - (BOOL)getParentUpdates:(NSMutableArray *)updates withURL:(NSURL *)url
 {
-    if(!parent) {
+    if (!parent) {
         return YES;
     }
     
     NSString *parentPath = [url URLByDeletingLastPathComponent].path;
     NSString *parentWrittenPath = parent.writtenURL.path;
     
-    if(parentWrittenPath) {
+    if (parentWrittenPath) {
         return [parentPath isEqual:parentWrittenPath];
     }
     
     NSURL *parentURL = [[NSURL alloc] initFileURLWithPath:parentPath];
     
-    if([parent getParentUpdates:updates withURL:parentURL]) {
+    if ([parent getParentUpdates:updates withURL:parentURL]) {
         [updates addObject:@{@"url":parentURL, @"wrapper":parent}];
         return YES;
     }
@@ -419,18 +446,18 @@
 
 - (void)getUpdates:(NSMutableArray *)updates withURL:(NSURL *)url
 {
-    if(deleted) {
+    if (deleted) {
         [updates addObject:@{@"url": url, @"wrapper":self}];
     }
-    else if(isDirectory) {
-        if(!writtenURL) {
+    else if (isDirectory) {
+        if (!writtenURL) {
             [updates addObject:@{@"url": url, @"wrapper":self}];
         }
-        for(LSFileWrapper *fileWrapper in [fileWrappers objectEnumerator]) {
+        for (LSFileWrapper *fileWrapper in [fileWrappers objectEnumerator]) {
             [fileWrapper getUpdates:updates withURL:[url URLByAppendingPathComponent:fileWrapper.filename]];
         }
     }
-    else if(updated && content) {
+    else if (updated && content) {
         [updates addObject:@{@"url": url, @"wrapper":self}];
     }
 }
@@ -439,33 +466,34 @@
 {
     BOOL wroteAll = YES;
     
-    for(NSDictionary *updateInfo in updates) {
+    for (NSDictionary *updateInfo in updates) {
         NSURL *fileURL = [updateInfo objectForKey:@"url"];
         LSFileWrapper *fileWrapper = [updateInfo objectForKey:@"wrapper"];
         NSObject *fileContent = fileWrapper.content;
         BOOL success = YES;
         
-        if(fileWrapper.deleted) {
+        if (fileWrapper.deleted) {
+            NSLog(@"delete %@", fileURL);
             success = [fileManager removeItemAtURL:fileURL error:outError];
         }
-        else if(fileWrapper.isDirectory) {
-            if(fileWrapper.writtenURL == nil) {
-                if([fileManager fileExistsAtPath:[fileURL path]]) {
+        else if (fileWrapper.isDirectory) {
+            if (fileWrapper.writtenURL == nil) {
+                if ([fileManager fileExistsAtPath:[fileURL path]]) {
                     success = [fileManager removeItemAtURL:fileURL error:outError];
                 }
                 success = success && [fileManager createDirectoryAtURL:fileURL withIntermediateDirectories:NO attributes:nil error:outError];
             }
         }
-        else if([fileContent isKindOfClass:[NSData class]]) {
+        else if ([fileContent isKindOfClass:[NSData class]]) {
             success = [(NSData*)fileContent writeToURL:fileURL options:NSDataWritingAtomic error:outError];
         }
-        else if([fileContent isKindOfClass:[NSString class]]) {
+        else if ([fileContent isKindOfClass:[NSString class]]) {
             success = [(NSString*)fileContent writeToURL:fileURL atomically:YES encoding:NSUTF8StringEncoding error:outError];
         }
-        else if([fileContent isKindOfClass:[UIImage class]]) {
+        else if ([fileContent isKindOfClass:[UIImage class]]) {
             success = [self writeImage:(UIImage *)fileContent toURL:fileURL error:outError];
         }
-        else if([fileContent isKindOfClass:[ALAsset class]]) {
+        else if ([fileContent isKindOfClass:[ALAsset class]]) {
             success = [self writeAsset:(ALAsset *)fileContent toURL:fileURL fileManager:fileManager error:outError];
         }
         else {
@@ -476,7 +504,7 @@
             success = data && [data writeToURL:fileURL atomically:YES];
         }
         
-        if(success == NO) {
+        if (success == NO) {
             wroteAll = NO;
             continue;
         }
@@ -485,11 +513,11 @@
         fileWrapper.writtenURL = fileURL;
         fileWrapper.updated = NO;
         
-        if(!cacheFile) {
+        if (!cacheFile) {
             fileWrapper.content = nil;
         }
         
-        if(fileWrapper.deleted) {
+        if (fileWrapper.deleted) {
             [fileWrapper.parent.fileWrappers removeObjectForKey:fileWrapper.filename];
         }
     }

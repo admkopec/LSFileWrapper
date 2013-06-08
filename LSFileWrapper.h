@@ -13,8 +13,6 @@
 - (id)initDirectory;
 - (id)initWithURL:(NSURL *)url isDirectory:(BOOL)isDir;
 
-- (void)loadCache;
-
 - (NSData *)data;
 - (NSString *)string;
 - (NSDictionary *)dictionary;
@@ -22,6 +20,10 @@
 
 - (void)updateContent:(id<NSObject>)content;
 - (void)deleteContent;
+
+- (void)incReserve;
+- (void)decReserve;
+- (void)deleteUnreserved;
 
 - (LSFileWrapper *)fileWrapperWithPath:(NSString *)path;
 - (LSFileWrapper *)fileWrapperWithPath:(NSString *)path create:(BOOL)create isDirectory:(BOOL)isDir;
@@ -37,5 +39,5 @@
 @property (readonly, strong, nonatomic) NSString *fileType;
 @property (readonly, nonatomic) BOOL updated;
 @property (readonly, nonatomic) BOOL isDirectory;
-@property (assign, nonatomic) BOOL cacheFile;
+@property (assign, nonatomic) NSInteger reserve;
 @end
