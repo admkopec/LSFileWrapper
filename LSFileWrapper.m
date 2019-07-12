@@ -136,6 +136,7 @@
     return nil;
 }
 
+#if TARGET_OS_IPHONE || TARGET_OS_SIMULATOR
 - (UIImage *)image
 {
     if (content == nil && writtenURL != nil) {
@@ -151,6 +152,22 @@
     }
     return nil;
 }
+#else
+- (NSImage *)image {
+    if (content == nil && writtenURL != nil) {
+        content = [[NSImage alloc] initWithContentsOfFile:writtenURL.path];
+        cacheFile = YES;
+        return (NSImage *)content;
+    }
+    if ([content isKindOfClass:[NSData class]]) {
+        content = [[NSImage alloc] initWithData:(NSData *)content];
+    }
+    if ([content isKindOfClass:[NSImage class]]) {
+        return (NSImage *)content;
+    }
+    return nil;
+}
+#endif
 
 - (void)updateContent:(id<NSObject>)content_
 {
@@ -372,6 +389,7 @@
     return filename_;
 }
 
+#if TARGET_OS_IPHONE || TARGET_OS_SIMULATOR
 - (BOOL)writeAsset:(ALAsset *)asset_ toURL:(NSURL *)url fileManager:(NSFileManager *)fileManager error:(NSError *__autoreleasing *)outError
 {
     [fileManager createFileAtPath:[url path] contents:nil attributes:nil];
@@ -382,7 +400,7 @@
         return NO;
     }
     ALAssetRepresentation *rep = [asset_ defaultRepresentation];
-    NSUInteger bytesSize = [rep size];
+    NSUInteger bytesSize = (NSUInteger)[rep size];
     NSUInteger bytesRead = 0;
     NSUInteger bytesOffset = 0;
     uint8_t *buffer = calloc(BufferSize, sizeof(*buffer));
@@ -421,6 +439,27 @@
     
     return [imageData writeToURL:url options:NSDataWritingAtomic error:outError];
 }
+
+#else
+- (BOOL)writeImage:(NSImage *)image_ toURL:(NSURL *)url error:(NSError *__autoreleasing *)outError
+{
+    NSData *imageData;
+    NSString *extension = [url pathExtension];
+    
+    [image_ lockFocus];
+    NSBitmapImageRep *bitmapRep = [[NSBitmapImageRep alloc] initWithFocusedViewRect:NSMakeRect(0, 0, image_.size.width, image_.size.height)];
+    [image_ unlockFocus];
+    
+    if ([extension isEqualToString:@"png"]) {
+        imageData = [bitmapRep representationUsingType:NSPNGFileType properties:nil];
+    }
+    else if ([extension isEqualToString:@"jpg"] || [extension isEqualToString:@"jpeg"]) {
+        imageData = [bitmapRep representationUsingType:NSJPEGFileType properties:nil];
+    }
+    
+    return [imageData writeToURL:url options:NSDataWritingAtomic error:outError];
+}
+#endif
 
 - (BOOL)getParentUpdates:(NSMutableArray *)updates withURL:(NSURL *)url
 {
@@ -490,12 +529,18 @@
         else if ([fileContent isKindOfClass:[NSString class]]) {
             success = [(NSString*)fileContent writeToURL:fileURL atomically:YES encoding:NSUTF8StringEncoding error:outError];
         }
+#if TARGET_OS_IPHONE || TARGET_OS_SIMULATOR
         else if ([fileContent isKindOfClass:[UIImage class]]) {
             success = [self writeImage:(UIImage *)fileContent toURL:fileURL error:outError];
         }
         else if ([fileContent isKindOfClass:[ALAsset class]]) {
             success = [self writeAsset:(ALAsset *)fileContent toURL:fileURL fileManager:fileManager error:outError];
         }
+#else
+        else if ([fileContent isKindOfClass:[NSImage class]]) {
+            success = [self writeImage:(NSImage *)fileContent toURL:fileURL error:outError];
+        }
+#endif
         else {
             NSData *data = [NSPropertyListSerialization dataWithPropertyList:fileContent
                                                                       format:NSPropertyListBinaryFormat_v1_0

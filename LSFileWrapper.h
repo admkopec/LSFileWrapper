@@ -5,7 +5,18 @@
 //
 
 #import <Foundation/Foundation.h>
+#if TARGET_OS_IPHONE || TARGET_OS_SIMULATOR
 #import <AssetsLibrary/AssetsLibrary.h>
+#import <UIKit/UIKit.h>
+#else
+#import <AppKit/AppKit.h>
+#endif
+
+//! Project version number for LSFileWrapper.
+FOUNDATION_EXPORT double LSFileWrapperVersionNumber;
+
+//! Project version string for LSFileWrapper.
+FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
 
 @interface LSFileWrapper : NSObject
 
@@ -16,7 +27,11 @@
 - (NSData *)data;
 - (NSString *)string;
 - (NSDictionary *)dictionary;
+#if TARGET_OS_IPHONE || TARGET_OS_SIMULATOR
 - (UIImage *)image;
+#else
+- (NSImage *)image;
+#endif
 
 - (void)updateContent:(id<NSObject>)content;
 - (void)deleteContent;
