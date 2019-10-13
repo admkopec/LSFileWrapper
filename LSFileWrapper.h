@@ -55,6 +55,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
 @property (readonly, strong, nonatomic) NSString *filename;
 @property (readonly, strong, nonatomic) NSString *fileType;
 @property (readonly, strong, nonatomic) NSMutableDictionary<NSString*, LSFileWrapper*> *fileWrappers;
+@property (readonly, strong, nonatomic) NSURL *writtenURL;
 @property (readonly, nonatomic) BOOL updated;
 @property (readonly, nonatomic) BOOL isDirectory;
 @property (assign, nonatomic) NSInteger reserve;

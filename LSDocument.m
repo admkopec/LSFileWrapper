@@ -4,6 +4,8 @@
 //  Distributed under MIT license
 //
 
+#import <TargetConditionals.h>
+#if !TARGET_OS_OSX
 #import "LSDocument.h"
 #import "LSFileWrapper.h"
 
@@ -40,3 +42,4 @@
 }
 
 @end
+#endif

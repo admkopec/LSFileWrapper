@@ -4,6 +4,8 @@
 //  Distributed under MIT license
 //
 
+#import <TargetConditionals.h>
+#if !TARGET_OS_OSX
 #import <UIKit/UIKit.h>
 
 @class LSFileWrapper;
@@ -22,3 +24,4 @@
 completionHandler:(void (^)(BOOL success))completionHandler;
 
 @end
+#endif
