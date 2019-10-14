@@ -16,7 +16,7 @@ import PackageDescription
 let package = Package(
         name: "LSFileWrapper",
         products: [
-            .library(name: "LSFileWrapper", targets: ["LSFileWrapper"])
+            .library(name: "LSFileWrapper", type: .dynamic, targets: ["LSFileWrapper"])
         ],
         dependencies: [],
         targets: [
