@@ -20,6 +20,6 @@ let package = Package(
         ],
         dependencies: [],
         targets: [
-            .target(name: "LSFileWrapper", path: "")
+            .target(name: "LSFileWrapper", path: "", publicHeadersPath: "")
         ]
 )
