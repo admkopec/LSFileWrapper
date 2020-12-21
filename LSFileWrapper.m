@@ -1,6 +1,8 @@
 //
 //  Copyright (c) 2013 Luke Scott
 //  https://github.com/lukescott/LSFileWrapper
+//  Copyright (c) 2020 Adam Kopeć
+//  https://github.com/admkopec/LSFileWrapper
 //  Distributed under MIT license
 //
 
@@ -333,6 +335,85 @@
     return [self writeUpdates:updates filemanager:[[NSFileManager alloc] init] error:outError];
 }
 
+#if TARGET_OS_OSX
+- (BOOL)writeToURL:(NSURL *)url forSaveOperation:(NSSaveOperationType)saveOperation originalContentsURL:(nullable NSURL *)absoluteOriginalContentsURL backupDocumentURL:(nullable NSURL *)backupFileURL error:(NSError *__autoreleasing *)outError {
+    [url startAccessingSecurityScopedResource];
+    switch (saveOperation) {
+        case NSAutosaveInPlaceOperation:
+            // Auto overwrite
+        case NSSaveOperation:
+            // Overwrite
+            if (backupFileURL) {
+                // Optional Backup propagation
+                [[NSFileManager defaultManager] copyItemAtURL:url toURL:backupFileURL error:nil];
+                [backupFileURL setResourceValues:@{NSURLIsHiddenKey: @YES} error:nil];
+            }
+            if (absoluteOriginalContentsURL) {
+                if (![self writeUpdatesToURL:absoluteOriginalContentsURL error:outError]) {
+                    [url stopAccessingSecurityScopedResource];
+                    return NO;
+                }
+                if (![url isEqual:absoluteOriginalContentsURL]) {
+                    if(![[NSFileManager defaultManager] copyItemAtURL:absoluteOriginalContentsURL toURL:url error:outError]) {
+                        [url stopAccessingSecurityScopedResource];
+                        return NO;
+                    }
+                }
+            } else {
+                if(![self writeToURL:url error:outError]) {
+                    [url stopAccessingSecurityScopedResource];
+                    return NO;
+                }
+            }
+            break;
+        case NSAutosaveAsOperation:
+            // Auto new with switch
+        case NSSaveAsOperation:
+            // New with switch
+            if(![self writeToURL:url error:outError]) {
+                [url stopAccessingSecurityScopedResource];
+                return NO;
+            }
+            // Switches self to new NSURL
+            if (self) {
+                filename = [url lastPathComponent];
+                writtenURL = url;
+                isDirectory = YES;
+                _reserve = 0;
+                fileWrappers = [[NSMutableDictionary alloc] init];
+                for (NSURL *childUrl in [[NSFileManager defaultManager] contentsOfDirectoryAtURL:url
+                                                                     includingPropertiesForKeys:nil
+                                                                                        options:0
+                                                                                          error:nil]) {
+                    LSFileWrapper *fileWrapper = [[LSFileWrapper alloc] initWithURL:childUrl isDirectory:NO];
+                    [fileWrapper setParent:self];
+                    [fileWrappers setObject:fileWrapper forKey:[childUrl lastPathComponent]];
+                }
+            }
+            [url setResourceValues:@{NSURLIsHiddenKey: @YES} error:nil];
+            break;
+        case NSAutosaveElsewhereOperation:
+            // Auto totally new
+        case NSSaveToOperation:
+            // Totally new
+            if(![self writeToURL:url error:outError]) {
+                [url stopAccessingSecurityScopedResource];
+                return NO;
+            }
+            [url setResourceValues:@{NSURLIsHiddenKey: @YES} error:nil];
+            break;
+        default:
+            break;
+    }
+    BOOL success = [url setResourceValues:@{NSURLContentModificationDateKey: [NSDate date]} error:outError];
+    [url stopAccessingSecurityScopedResource];
+    if (!success) {
+        return NO;
+    }
+    return YES;
+}
+#endif
+
 @end
 
 @implementation LSFileWrapper (Internal)
@@ -494,10 +575,10 @@
     [image_ unlockFocus];
     
     if ([extension isEqualToString:@"png"]) {
-        imageData = [bitmapRep representationUsingType:NSPNGFileType properties:nil];
+        imageData = [bitmapRep representationUsingType:NSPNGFileType properties:@{}];
     }
     else if ([extension isEqualToString:@"jpg"] || [extension isEqualToString:@"jpeg"]) {
-        imageData = [bitmapRep representationUsingType:NSJPEGFileType properties:nil];
+        imageData = [bitmapRep representationUsingType:NSJPEGFileType properties:@{}];
     }
     
     return [imageData writeToURL:url options:NSDataWritingAtomic error:outError];
