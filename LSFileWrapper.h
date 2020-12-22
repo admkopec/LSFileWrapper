@@ -25,12 +25,12 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
 /**
  *  @brief Initializes a new LSFileWrapper of type File.
  */
-- (id)initFile;
+- (nonnull id)initFile;
 
 /**
  *  @brief Initializes a new LSFileWrapper of type Directory.
  */
-- (id)initDirectory;
+- (nonnull id)initDirectory;
 
 /**
  *  @brief Loads and initializes LSFileWrapper with the contents of supplied url.
@@ -38,7 +38,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *  @param url The origin url from which LSFileWrapper should be loaded.
  *  @param isDir Boolean indicating whether the passed url is a Directory. When unknown NO should be passed, as the method will automatically detect the correct wrapper type based on the supplied url.
  */
-- (id)initWithURL:(NSURL *)url isDirectory:(BOOL)isDir;
+- (nullable id)initWithURL:(nonnull NSURL *)url isDirectory:(BOOL)isDir;
 
 // MARK: - File Wrapper Methods
 
@@ -49,7 +49,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @return Stored data in the current LSFileWrapper as NSString.
  */
-- (NSData *)data;
+- (nullable NSData *)data;
 
 /**
  *  @brief Loads and returns the stored data as NSString.
@@ -58,7 +58,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @return Stored data in the current LSFileWrapper as NSString.
  */
-- (NSString *)string;
+- (nullable NSString *)string;
 
 /**
  *  @brief Loads and returns the stored data as NSDictionary.
@@ -67,7 +67,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @return Stored data in the current LSFileWrapper as NSDictionary.
  */
-- (NSDictionary *)dictionary;
+- (nullable NSDictionary *)dictionary;
 
 #if TARGET_OS_IPHONE || TARGET_OS_SIMULATOR
 /**
@@ -77,7 +77,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @return Stored data in the current LSFileWrapper as UIImage.
  */
-- (UIImage *)image;
+- (nullable UIImage *)image;
 #else
 /**
  *  @brief Loads and returns the stored data as NSImage.
@@ -86,7 +86,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @return Stored data in the current LSFileWrapper as NSImage.
  */
-- (NSImage *)image;
+- (nullable NSImage *)image;
 #endif
 
 /**
@@ -96,7 +96,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @param content New contents to store.
  */
-- (void)updateContent:(id<NSObject>)content;
+- (void)updateContent:(nonnull id<NSObject>)content;
 
 /**
  *  @brief Clears currently stored contents.
@@ -122,7 +122,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @return Optional stored child wrapper as LSFileWrapper.
  */
-- (LSFileWrapper *)fileWrapperWithPath:(NSString *)path;
+- (nullable LSFileWrapper *)fileWrapperWithPath:(nonnull NSString *)path;
 
 /**
  *  @brief Finds child wrapper at supplied path in the current LSFileWrapper and its children traversing by path.
@@ -135,7 +135,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @return Optional stored child wrapper as LSFileWrapper.
  */
-- (LSFileWrapper *)fileWrapperWithPath:(NSString *)path create:(BOOL)create isDirectory:(BOOL)isDir;
+- (nullable LSFileWrapper *)fileWrapperWithPath:(nonnull NSString *)path create:(BOOL)create isDirectory:(BOOL)isDir;
 
 /**
  *  @brief Adds a new child wrapper with the supplied name to the current LSFileWrapper. If a wrapper is already present with the same name, then the new wrapper will be saved under the returned named to prevent collisions.
@@ -148,7 +148,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @return Nil on error or the name of the added child wrapper as NSString.
  */
-- (NSString *)addFileWrapper:(LSFileWrapper *)fileWrapper withFilename:(NSString *)filename;
+- (nonnull NSString *)addFileWrapper:(nonnull LSFileWrapper *)fileWrapper withFilename:(nonnull NSString *)filename;
 
 /**
  *  @brief Adds a new child wrapper with the supplied name to the current LSFileWrapper. If a wrapper is already present with the same name, then the new wrapper will replace it.
@@ -159,7 +159,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *  @param fileWrapper Child wrapper which should be stored in the current LSFileWrapper as LSFileWrapper.
  *  @param filename  Name of the child wrapper.
  */
-- (void)setFileWrapper:(LSFileWrapper *)fileWrapper withFilename:(NSString *)filename;
+- (void)setFileWrapper:(nonnull LSFileWrapper *)fileWrapper withFilename:(nonnull NSString *)filename;
 
 /**
  *  @brief Removes the supplied child wrapper from the current LSFileWrapper.
@@ -168,7 +168,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @param fileWrapper Child wrapper which should be added to current LSFileWrapper as LSFileWrapper.
  */
-- (void)removeFileWrapper:(LSFileWrapper *)fileWrapper;
+- (void)removeFileWrapper:(nonnull LSFileWrapper *)fileWrapper;
 
 /**
  *  @brief Adds a new child wrapper of type File with the supplied name to the current LSFileWrapper. If a wrapper is already present with the same name, then the new wrapper will be saved under the returned named to prevent collisions.
@@ -181,7 +181,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @return Nil on error or the name of the added child file wrapper as NSString.
  */
-- (NSString *)addContent:(id<NSObject>)content_ withFilename:(NSString *)filename;
+- (nonnull NSString *)addContent:(nonnull id<NSObject>)content_ withFilename:(nonnull NSString *)filename;
 
 /**
  *  @brief Adds a new child wrapper of type File with the supplied name to the current LSFileWrapper.  If a wrapper is already present with the same name, then the new wrapper will replace it.
@@ -192,7 +192,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *  @param content_ Content which should be stored in the current LSFileWrapper.
  *  @param filename  Name of the child file wrapper.
  */
-- (void)setContent:(id<NSObject>)content_ withFilename:(NSString *)filename;
+- (void)setContent:(nonnull id<NSObject>)content_ withFilename:(nonnull NSString *)filename;
 
 // MARK: - Disk Write Methods
 
@@ -206,7 +206,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @return Boolean indicating success or failure of the write operation.
  */
-- (BOOL)writeUpdatesToURL:(NSURL *)url error:(NSError *__autoreleasing *)outError;
+- (BOOL)writeUpdatesToURL:(nonnull NSURL *)url error:(NSError *__autoreleasing _Nullable *_Nullable)outError;
 
 /**
  *  @brief Writes all contents of LSFileWrapper to passed url.
@@ -218,7 +218,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @return Boolean indicating success or failure of the write operation.
  */
-- (BOOL)writeToURL:(NSURL *)url error:(NSError *__autoreleasing *)outError;
+- (BOOL)writeToURL:(nonnull NSURL *)url error:(NSError *__autoreleasing _Nullable *_Nullable)outError;
 
 #if TARGET_OS_OSX
 /**
@@ -236,15 +236,15 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @return Boolean indicating success or failure of the write operation.
  */
-- (BOOL)writeToURL:(NSURL *)url forSaveOperation:(NSSaveOperationType)saveOperation originalContentsURL:(NSURL *)absoluteOriginalContentsURL backupDocumentURL:(NSURL *)backupFileURL error:(NSError *__autoreleasing *)outError;
+- (BOOL)writeToURL:(nonnull NSURL *)url forSaveOperation:(NSSaveOperationType)saveOperation originalContentsURL:(nullable NSURL *)absoluteOriginalContentsURL backupDocumentURL:(nullable NSURL *)backupFileURL error:(NSError *__autoreleasing _Nullable *_Nullable)outError;
 #endif
 
 // MARK: - Instance Properties
 
-@property (readonly, strong, nonatomic) NSString *filename;
-@property (readonly, strong, nonatomic) NSString *fileType;
-@property (readonly, strong, nonatomic) NSMutableDictionary<NSString*, LSFileWrapper*> *fileWrappers;
-@property (readonly, strong, nonatomic) NSURL *writtenURL;
+@property (readonly, strong, nonatomic, nullable) NSString *filename;
+@property (readonly, strong, nonatomic, nullable) NSString *fileType;
+@property (readonly, strong, nonatomic, nullable) NSMutableDictionary<NSString*, LSFileWrapper*> *fileWrappers;
+@property (readonly, strong, nonatomic, nullable) NSURL *writtenURL;
 @property (readonly, nonatomic) BOOL updated;
 @property (readonly, nonatomic) BOOL isDirectory;
 @property (assign, nonatomic) NSInteger reserve;
