@@ -337,7 +337,6 @@
 
 #if TARGET_OS_OSX
 - (BOOL)writeToURL:(NSURL *)url forSaveOperation:(NSSaveOperationType)saveOperation originalContentsURL:(nullable NSURL *)absoluteOriginalContentsURL backupDocumentURL:(nullable NSURL *)backupFileURL error:(NSError *__autoreleasing *)outError {
-    [url startAccessingSecurityScopedResource];
     switch (saveOperation) {
         case NSAutosaveInPlaceOperation:
             // Auto overwrite
@@ -350,18 +349,15 @@
             }
             if (absoluteOriginalContentsURL) {
                 if (![self writeUpdatesToURL:absoluteOriginalContentsURL error:outError]) {
-                    [url stopAccessingSecurityScopedResource];
                     return NO;
                 }
                 if (![url isEqual:absoluteOriginalContentsURL]) {
                     if(![[NSFileManager defaultManager] copyItemAtURL:absoluteOriginalContentsURL toURL:url error:outError]) {
-                        [url stopAccessingSecurityScopedResource];
                         return NO;
                     }
                 }
             } else {
                 if(![self writeToURL:url error:outError]) {
-                    [url stopAccessingSecurityScopedResource];
                     return NO;
                 }
             }
@@ -371,46 +367,37 @@
         case NSSaveAsOperation:
             // New with switch
             if(![self writeToURL:url error:outError]) {
-                [url stopAccessingSecurityScopedResource];
                 return NO;
             }
             // Switches self to new NSURL
-            if (self) {
-                filename = [url lastPathComponent];
-                writtenURL = url;
-                isDirectory = YES;
-                _reserve = 0;
-                fileWrappers = [[NSMutableDictionary alloc] init];
-                for (NSURL *childUrl in [[NSFileManager defaultManager] contentsOfDirectoryAtURL:url
-                                                                     includingPropertiesForKeys:nil
-                                                                                        options:0
-                                                                                          error:nil]) {
-                    LSFileWrapper *fileWrapper = [[LSFileWrapper alloc] initWithURL:childUrl isDirectory:NO];
-                    [fileWrapper setParent:self];
-                    [fileWrappers setObject:fileWrapper forKey:[childUrl lastPathComponent]];
-                }
+            filename = [url lastPathComponent];
+            writtenURL = url;
+            isDirectory = YES;
+            _reserve = 0;
+            fileWrappers = [[NSMutableDictionary alloc] init];
+            for (NSURL *childUrl in [[NSFileManager defaultManager] contentsOfDirectoryAtURL:url
+                                                                 includingPropertiesForKeys:nil
+                                                                                    options:0
+                                                                                      error:nil]) {
+                LSFileWrapper *fileWrapper = [[LSFileWrapper alloc] initWithURL:childUrl isDirectory:NO];
+                [fileWrapper setParent:self];
+                [fileWrappers setObject:fileWrapper forKey:[childUrl lastPathComponent]];
             }
-            [url setResourceValues:@{NSURLIsHiddenKey: @YES} error:nil];
+            [url setResourceValues:@{NSURLHasHiddenExtensionKey: @YES} error:nil];
             break;
         case NSAutosaveElsewhereOperation:
             // Auto totally new
         case NSSaveToOperation:
             // Totally new
             if(![self writeToURL:url error:outError]) {
-                [url stopAccessingSecurityScopedResource];
                 return NO;
             }
-            [url setResourceValues:@{NSURLIsHiddenKey: @YES} error:nil];
+            [url setResourceValues:@{NSURLHasHiddenExtensionKey: @YES} error:nil];
             break;
         default:
             break;
     }
-    BOOL success = [url setResourceValues:@{NSURLContentModificationDateKey: [NSDate date]} error:outError];
-    [url stopAccessingSecurityScopedResource];
-    if (!success) {
-        return NO;
-    }
-    return YES;
+    return [url setResourceValues:@{NSURLContentModificationDateKey: [NSDate date]} error:outError];
 }
 #endif
 

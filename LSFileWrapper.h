@@ -228,6 +228,16 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @warning Should only be called on the Main LSFileWrapper.
  *
+ *  @code
+ *  // Example usage in NSDocument:
+ *  -(BOOL)writeToURL:(NSURL *)url forSaveOperation:(NSSaveOperationType)saveOperation originalContentsURL:(NSURL *)absoluteOriginalContentsURL error:(NSError *__autoreleasing *)outError {
+ *      [url startAccessingSecurityScopedResource];
+ *      BOOL success = [lsFileWrapper writeToURL: url forSaveOperation: saveOperation originalContentsURL: absoluteOriginalContentsURL backupDocumnetURL: [self backupFileURL] outError: outError];
+ *      [url stopAccessingSecurityScopedResource];
+ *      return success;
+ *  }
+ *  @endcode
+ *
  *  @param url NSURL where LSFileWrapper should be written to.
  *  @param saveOperation NSSaveOperationType passed from NSDcoument.
  *  @param absoluteOriginalContentsURL Optional NSURL where the current NSDocument – LSFileWrapper contents  are already present.
