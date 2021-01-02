@@ -172,7 +172,10 @@ To remove a file wrapper from existing wrapper use `-removeFileWrapper`.
 ```objective-c
 LSFileWrapper* directoryWrapper;
 
-// Path can also contain "/" for subfolder search, however only 'first' children can be removed
+// Using a filename, only 'first' children can be removed
+[directoryWrapper removeFileWrapperWithFilename: @"hello.txt"];
+
+// Using an instance of a wrapper. Path can also contain "/" for subfolder search, however only 'first' children can be removed.
 LSFileWrapper* wrapperToRemove = [directoryWrapper fileWrapperWithPath: @"hello.txt"];
 if (wrapperToRemove) {
     [directoryWrapper removeFileWrapper: wrapperToRemove];
@@ -183,7 +186,10 @@ if (wrapperToRemove) {
 ```swift
 let directoryWrapper: LSFileWrapper
 
-// Path can also contain "/" for subfolder search, however only 'first' children can be removed. `fileWrappers` dictionary can also be used here.
+// Using a filename, only 'first' children can be removed
+directoryWrapper.removeFileWrapper(with: "hello.txt")
+
+// Using an instance of a wrapper. Path can also contain "/" for subfolder search, however only 'first' children can be removed.
 if let wrapperToRemove = directoryWrapper.withPath("hello.txt") {
     directoryWrapper.removeFileWrapper(wrapperToRemove)
 }
