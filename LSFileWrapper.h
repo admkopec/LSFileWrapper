@@ -10,7 +10,7 @@
 #if TARGET_OS_IPHONE || TARGET_OS_SIMULATOR
 #import <AssetsLibrary/AssetsLibrary.h>
 #import <UIKit/UIKit.h>
-#else
+#elif TARGET_OS_OSX
 #import <AppKit/AppKit.h>
 #endif
 
@@ -166,9 +166,18 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @warning Should only be called on the LSFileWrapper of type Directory.
  *
- *  @param fileWrapper Child wrapper which should be added to current LSFileWrapper as LSFileWrapper.
+ *  @param fileWrapper Child wrapper which should be removed from the current LSFileWrapper as LSFileWrapper.
  */
 - (void)removeFileWrapper:(nonnull LSFileWrapper *)fileWrapper;
+
+/**
+ *  @brief Removes the  child wrapper with supplied name from the current LSFileWrapper.
+ *
+ *  @warning Should only be called on the LSFileWrapper of type Directory.
+ *
+ *  @param filename Child wrapper's filename which should be removed from the current LSFileWrapper.
+ */
+- (void)removeFileWrapperWithFilename:(nonnull NSString *)filename NS_SWIFT_NAME(removeFileWrapper(with:));
 
 /**
  *  @brief Adds a new child wrapper of type File with the supplied name to the current LSFileWrapper. If a wrapper is already present with the same name, then the new wrapper will be saved under the returned named to prevent collisions.

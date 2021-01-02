@@ -159,7 +159,7 @@
     }
     return nil;
 }
-#else
+#elif TARGET_OS_OSX
 - (NSImage *)image {
     if (content == nil && writtenURL != nil) {
         content = [[NSImage alloc] initWithContentsOfFile:writtenURL.path];
@@ -275,12 +275,22 @@
                                      userInfo:nil];
         return;
     }
-    LSFileWrapper *existing = [fileWrappers objectForKey:fileWrapper.filename];
+    [self removeFileWrapperWithFilename:fileWrapper.filename];
+}
+
+- (void)removeFileWrapperWithFilename:(NSString *)filename_ {
+    if (!isDirectory) {
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                       reason:@"LSFileWrapper file is not a directory."
+                                     userInfo:nil];
+        return;
+    }
+    LSFileWrapper *existing = [fileWrappers objectForKey:filename_];
     if (existing.writtenURL) {
         existing.deleted = YES;
     }
     else {
-        [fileWrappers removeObjectForKey:fileWrapper.filename];
+        [fileWrappers removeObjectForKey:filename_];
     }
     updated = YES;
 }
@@ -551,7 +561,7 @@
     return [imageData writeToURL:url options:NSDataWritingAtomic error:outError];
 }
 
-#else
+#elif TARGET_OS_OSX
 - (BOOL)writeImage:(NSImage *)image_ toURL:(NSURL *)url error:(NSError *__autoreleasing *)outError
 {
     NSData *imageData;
@@ -650,35 +660,38 @@
                 success = success && [fileManager createDirectoryAtURL:fileURL withIntermediateDirectories:NO attributes:nil error:outError];
             }
         }
-        else if ([fileContent isKindOfClass:[NSData class]]) {
+        else {
             // Create the directories if they're missing
             NSURL* directoryURL = [fileURL URLByDeletingLastPathComponent];
             if ([directoryURL checkResourceIsReachableAndReturnError:nil] == NO) {
                 [[NSFileManager defaultManager] createDirectoryAtURL:directoryURL withIntermediateDirectories:YES attributes:@{NSFileExtensionHidden: @YES} error:outError];
             }
-            success = [(NSData*)fileContent writeToURL:fileURL options:NSDataWritingAtomic error:outError];
-        }
-        else if ([fileContent isKindOfClass:[NSString class]]) {
-            success = [(NSString*)fileContent writeToURL:fileURL atomically:YES encoding:NSUTF8StringEncoding error:outError];
-        }
+            if ([fileContent isKindOfClass:[NSData class]]) {
+                
+                success = [(NSData*)fileContent writeToURL:fileURL options:NSDataWritingAtomic error:outError];
+            }
+            else if ([fileContent isKindOfClass:[NSString class]]) {
+                success = [(NSString*)fileContent writeToURL:fileURL atomically:YES encoding:NSUTF8StringEncoding error:outError];
+            }
 #if TARGET_OS_IPHONE || TARGET_OS_SIMULATOR
-        else if ([fileContent isKindOfClass:[UIImage class]]) {
-            success = [self writeImage:(UIImage *)fileContent toURL:fileURL error:outError];
-        }
-        else if ([fileContent isKindOfClass:[ALAsset class]]) {
-            success = [self writeAsset:(ALAsset *)fileContent toURL:fileURL fileManager:fileManager error:outError];
-        }
-#else
-        else if ([fileContent isKindOfClass:[NSImage class]]) {
-            success = [self writeImage:(NSImage *)fileContent toURL:fileURL error:outError];
-        }
+            else if ([fileContent isKindOfClass:[UIImage class]]) {
+                success = [self writeImage:(UIImage *)fileContent toURL:fileURL error:outError];
+            }
+            else if ([fileContent isKindOfClass:[ALAsset class]]) {
+                success = [self writeAsset:(ALAsset *)fileContent toURL:fileURL fileManager:fileManager error:outError];
+            }
+#elif TARGET_OS_OSX
+            else if ([fileContent isKindOfClass:[NSImage class]]) {
+                success = [self writeImage:(NSImage *)fileContent toURL:fileURL error:outError];
+            }
 #endif
-        else {
-            NSData *data = [NSPropertyListSerialization dataWithPropertyList:fileContent
-                                                                      format:NSPropertyListBinaryFormat_v1_0
-                                                                     options:0
-                                                                       error:NULL];
-            success = data && [data writeToURL:fileURL atomically:YES];
+            else {
+                NSData *data = [NSPropertyListSerialization dataWithPropertyList:fileContent
+                                                                          format:NSPropertyListBinaryFormat_v1_0
+                                                                         options:0
+                                                                           error:NULL];
+                success = data && [data writeToURL:fileURL atomically:YES];
+            }
         }
         
         if (success == NO) {
