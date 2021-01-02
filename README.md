@@ -1,9 +1,11 @@
 # 📁 LSFileWrapper
 Replacement for NSFileWrapper that loads / saves content on-demand. Understands how to save / serialize objects like NSData, UIImage, NSImage, NSDictionary, etc...
+
 ## 💻 Requirements
 LSFileWrapper works on Mac OS X 10.7+ and iOS 8.0 or newer. The Xcode project contains two framework targets for:
 * 💻 macOS (10.7 or greater)
 * 📱 iOS (8.0 or greater)
+
 ## 📖 Usage
 * [Creating new wrappers](#creating-new-wrappers)
 * [Loading from disk](#loading-from-disk)
@@ -13,6 +15,7 @@ LSFileWrapper works on Mac OS X 10.7+ and iOS 8.0 or newer. The Xcode project co
 - [Updating contents](#updating-contents)
 * [Removing wrappers](#removing-wrappers)
 * [Getting child wrappers](#getting-child-wrappers)
+
 ### Creating new wrappers
 To create a new LSFileWrapper use `-initDirectory` for directory wrappers or `-initFile` for regular file wrappers.
 These wrappers and all of their contents will be stored entirely in the memory until any of the write methods gets called.
@@ -42,7 +45,7 @@ let url: URL
 let existingWrapper = LSFileWrapper(with: url, isDirectory: false)
 ```
 ### Writing to disk
-> **_Notice:_** Writing methods should only be called on a wrapper that has no parents.
+> **_Notice:_** Writing methods should only be called on the top most wrapper – a wrapper that has no parents.
 
 To write the wrapper to disk call `-writeToURL` or `-writeUpdatesToURL`, the difference between the two being that updates will update the cached wrapper location and remove changes from memory, so use this only in situations like autosave. For duplicate operations use `-writeToURL`. Only the main wrapper can be written to disk – the wrapper that has no parents. If the write is issued as part of NSDocument's save routine there's a convenience method `-writeToURL forSaveOperation` that automatically calls `-writeToURL` or `-writeUpdatesToURL` based on save operation and also handles document backups (versioning) and url switches on save as.
 ```objective-c
@@ -56,7 +59,7 @@ NSURL* url;
 // otherwise the write method could result in partial contents on the disk and potential loss of data.
 [mainWrapper writeUpdatesToURL: url];
 ```
-*NSDocument:*
+*NSDocument (macOS only):*
 ```objective-c
 LSFileWrapper* mainWrapper;
 
@@ -81,7 +84,7 @@ mainWrapper.write(to: url)
 mainWrapper.writeUpdates(to: url)
 ```
 
-*NSDocument:*
+*NSDocument (macOS only):*
 ```swift
 let mainWrapper: LSFileWrapper
 
@@ -92,7 +95,7 @@ override func write(to url: URL, for saveOperation: SaveOperationType, originalC
 }
 ```
 ### Adding contents
-> **_Notice:_** For directory wrappers only.
+> **_Notice:_** Directory wrappers only.
 
 To add a file wrapper to an existing directory wrapper use `-addFileWrapper` or `-setFileWrapper`, the difference between the two being that *add* will suffix a filename with 2, 3, 4, etc… if the wrapper with the same name already exists and return the final filename, *set* will overwrite any existing file wrappers. 
 `-addContent` and `-setContent` work the same way, but create the file wrapper for you.
@@ -100,13 +103,13 @@ To add a file wrapper to an existing directory wrapper use `-addFileWrapper` or 
 LSFileWrapper* directoryWrapper;
 
 // Adds an empty directory with preferred name
-NSString* fileName = [directoryWrapper addFileWrapper: [[LSFileWrapper alloc] initDirectory] withFilename: @"Empty Directory Name"];
+NSString* folderName = [directoryWrapper addFileWrapper: [[LSFileWrapper alloc] initDirectory] withFilename: @"Empty Directory Name"];
 
 // Adds and overrides any wrappers matching the filename
 [directoryWrapper setFileWrapper: [[LSFileWrapper alloc] initDirectory] withFilename: @"Empty Directory Name"];
 
 // Adds a new text file
-[directoryWrapper addContent: @"Hello, World!" withFilename: @"hello.txt"];
+NSString* fileName = [directoryWrapper addContent: @"Hello, World!" withFilename: @"hello.txt"];
 
 // Adds and overrides any files matching the filename. This method could also be used when changes are made to the file
 [directoryWrapper setContent: @"Hello, World!" withFilename: @"hello.txt"];
@@ -117,19 +120,19 @@ NSString* fileName = [directoryWrapper addFileWrapper: [[LSFileWrapper alloc] in
 let directoryWrapper: LSFileWrapper
 
 // Adds an empty directory with preferred name
-let fileName = directoryWrapper.addFileWrapper(LSFileWrapper(directory: ()) withFilename: "Empty Directory Name")
+let folderName = directoryWrapper.addFileWrapper(LSFileWrapper(directory: ()) withFilename: "Empty Directory Name")
 
 // Adds and overrides any wrappers matching the filename
 directoryWrapper.setFileWrapper(LSFileWrapper(directory: ()) withFilename: "Empty Directory Name")
 
 // Adds a new text file. Content has to be of Objective-C type, i.e. NSString, NSData... or casted with `as` operator
-directoryWrapper.addContent(NSString("Hello, World!"), withFilename: "hello.txt")
+let filename = directoryWrapper.addContent(NSString("Hello, World!"), withFilename: "hello.txt")
 
 // Adds and overrides any files matching the filename. This method can be used when changes are made to the file
 directoryWrapper.setContent("Hello, World!" as NSString, withFilename: "hello.txt")
 ```
 ### Reading Contents
-> **_Notice:_** For file wrappers only.
+> **_Notice:_** File wrappers only.
 
 To retrieve contents of a regular file wrapper use one of various convenience methods: `-data`, `-string`, `-dictionary`, `-image`.
 ```objective-c
@@ -147,7 +150,7 @@ let optionalData = fileWrapper.data()
 let optionalString = fileWrapper.string()
 ```
 ### Updating Contents
-> **_Notice:_** For file wrappers only.
+> **_Notice:_** File wrappers only.
 
 To update the contents of a regular file wrapper use `-updateContent`.
 ```objective-c
@@ -163,7 +166,7 @@ let fileWrapper: LSFileWrapper
 fileWrapper.updateContent("Hello, World!" as NSString)
 ```
 ### Removing wrappers
-> **_Notice:_** For directory wrappers only.
+> **_Notice:_** Directory wrappers only.
 
 To remove a file wrapper from existing wrapper use `-removeFileWrapper`.
 ```objective-c
@@ -186,7 +189,7 @@ if let wrapperToRemove = directoryWrapper.withPath("hello.txt") {
 }
 ```
 ### Getting child wrappers
-> **_Notice:_** For directory wrappers only.
+> **_Notice:_** Directory wrappers only.
 
 To get wrappers from a directory wrapper use `@property fileWrappers` or call `-fileWrapperWithPath`, the latter will also traverse all children based on path.
 ```objective-c
