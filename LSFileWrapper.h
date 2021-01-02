@@ -118,7 +118,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @warning Should only be called on the LSFileWrapper of type Directory.
  *
- *  @param path The path of child wrapper as NSString.
+ *  @param path Relative path of child wrapper as NSString.
  *
  *  @return Optional stored child wrapper as LSFileWrapper.
  */
@@ -129,7 +129,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @warning Should only be called on the LSFileWrapper of type Directory.
  *
- *  @param path The path of child wrapper as NSString.
+ *  @param path Relative path of child wrapper as NSString.
  *  @param create Boolean indicating if LSFileWrapper should be created at specified path when none is found.
  *  @param isDir Boolean indicating if LSFileWrapper that should be created at specified path should be of type Directory.
  *
@@ -175,9 +175,9 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @warning Should only be called on the LSFileWrapper of type Directory.
  *
- *  @param filename Child wrapper's filename which should be removed from the current LSFileWrapper.
+ *  @param path Relative path to child wrapper which should be removed from the current LSFileWrapper tree.
  */
-- (void)removeFileWrapperWithFilename:(nonnull NSString *)filename NS_SWIFT_NAME(removeFileWrapper(with:));
+- (void)removeFileWrapperWithPath:(nonnull NSString *)path NS_SWIFT_NAME(removeFileWrapper(with:));
 
 /**
  *  @brief Adds a new child wrapper of type File with the supplied name to the current LSFileWrapper. If a wrapper is already present with the same name, then the new wrapper will be saved under the returned named to prevent collisions.
@@ -262,7 +262,6 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
 
 @property (readonly, strong, nonatomic, nullable) NSString *filename;
 @property (readonly, strong, nonatomic, nullable) NSString *fileType;
-@property (readonly, strong, nonatomic, nullable) NSMutableDictionary<NSString*, LSFileWrapper*> *fileWrappers;
 @property (readonly, strong, nonatomic, nullable) NSURL *writtenURL;
 @property (readonly, nonatomic) BOOL updated;
 @property (readonly, nonatomic) BOOL isDirectory;

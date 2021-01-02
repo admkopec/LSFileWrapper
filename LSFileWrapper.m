@@ -160,7 +160,8 @@
     return nil;
 }
 #elif TARGET_OS_OSX
-- (NSImage *)image {
+- (NSImage *)image
+{
     if (content == nil && writtenURL != nil) {
         content = [[NSImage alloc] initWithContentsOfFile:writtenURL.path];
         cacheFile = YES;
@@ -262,7 +263,8 @@
     [self setFileWrapper:fileWrapper filename:filename_ replace:YES];
 }
 
-- (void)removeFileWrapper:(LSFileWrapper *)fileWrapper {
+- (void)removeFileWrapper:(LSFileWrapper *)fileWrapper
+{
     if (!isDirectory) {
         @throw [NSException exceptionWithName:NSInternalInconsistencyException
                                        reason:@"LSFileWrapper file is not a directory."
@@ -275,24 +277,26 @@
                                      userInfo:nil];
         return;
     }
-    [self removeFileWrapperWithFilename:fileWrapper.filename];
+    [self removeFileWrapperWithPath:fileWrapper.filename];
 }
 
-- (void)removeFileWrapperWithFilename:(NSString *)filename_ {
-    if (!isDirectory) {
-        @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                       reason:@"LSFileWrapper file is not a directory."
-                                     userInfo:nil];
+- (void)removeFileWrapperWithPath:(NSString *)path
+{
+    NSString *dirpath = [path stringByDeletingLastPathComponent];
+    NSString *filename_ = [path lastPathComponent];
+    LSFileWrapper *dirFileWrapper = [self walkDirectoryPath:dirpath create:NO];
+    
+    if (!dirFileWrapper) {
         return;
     }
-    LSFileWrapper *existing = [fileWrappers objectForKey:filename_];
+    LSFileWrapper *existing = [dirFileWrapper.fileWrappers objectForKey:filename_];
     if (existing.writtenURL) {
         existing.deleted = YES;
     }
     else {
-        [fileWrappers removeObjectForKey:filename_];
+        [[dirFileWrapper fileWrappers] removeObjectForKey:filename_];
     }
-    updated = YES;
+    dirFileWrapper.updated = YES;
 }
 
 - (NSString *)addContent:(id<NSObject>)content_ withFilename:(NSString *)filename_
@@ -332,7 +336,8 @@
     return [self writeUpdates:updates filemanager:[[NSFileManager alloc] init] error:outError];
 }
 
-- (BOOL)writeToURL:(NSURL *)url error:(NSError *__autoreleasing *)outError {
+- (BOOL)writeToURL:(NSURL *)url error:(NSError *__autoreleasing *)outError
+{
     NSMutableArray *updates = [[NSMutableArray alloc] init];
     
     if (parent) {
@@ -346,7 +351,8 @@
 }
 
 #if TARGET_OS_OSX
-- (BOOL)writeToURL:(NSURL *)url forSaveOperation:(NSSaveOperationType)saveOperation originalContentsURL:(nullable NSURL *)absoluteOriginalContentsURL backupDocumentURL:(nullable NSURL *)backupFileURL error:(NSError *__autoreleasing *)outError {
+- (BOOL)writeToURL:(NSURL *)url forSaveOperation:(NSSaveOperationType)saveOperation originalContentsURL:(nullable NSURL *)absoluteOriginalContentsURL backupDocumentURL:(nullable NSURL *)backupFileURL error:(NSError *__autoreleasing *)outError
+{
     switch (saveOperation) {
         case NSAutosaveInPlaceOperation:
             // Auto overwrite
@@ -483,8 +489,10 @@
                 format = [NSString stringWithFormat:@"%@ %%d", basename];
             }
             while (true) {
+                // Checking both cases for iOS and macOS interoperability
                 LSFileWrapper *existing = [fileWrappers objectForKey:filename_];
-                if (!existing || existing.deleted) {
+                LSFileWrapper *existingCase = [fileWrappers objectForKey:[filename_ lowercaseString]];
+                if ((!existing || existing.deleted) && (!existingCase || existingCase.deleted)) {
                     break;
                 }
                 filename_ = [NSString stringWithFormat:format, ++num];
