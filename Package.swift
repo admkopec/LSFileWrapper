@@ -5,11 +5,10 @@
 //  LSFileWrapper
 //
 //  Created by Adam Kopeć on 10/13/19.
-//  Copyright © 2019 Adam Kopeć. All rights reserved.
+//  Copyright © 2019 Adam Kopeć.
 //
 //  Licensed under the MIT License
 //
-
 
 import PackageDescription
 
