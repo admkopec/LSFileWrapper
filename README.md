@@ -197,12 +197,11 @@ if let wrapperToRemove = directoryWrapper.withPath("hello.txt") {
 ### Getting child wrappers
 > **_Notice:_** Directory wrappers only.
 
-To get wrappers from a directory wrapper use `@property fileWrappers` or call `-fileWrapperWithPath`, the latter will also traverse all children based on path.
+To get wrappers from a directory wrapper call `-fileWrapperWithPath`, this will also traverse all children based on supplied path.
 ```objective-c
 LSFileWrapper* directoryWrapper;
 
 LSFileWrapper* wrapper = [directoryWrapper fileWrapperWithPath: @"hello.txt"];
-LSFileWrapper* wrapper = [directoryWrapper [fileWrappers objectForKey: @"hello.txt"]];
 ```
 
 *Swift:*
@@ -210,7 +209,6 @@ LSFileWrapper* wrapper = [directoryWrapper [fileWrappers objectForKey: @"hello.t
 let directoryWrapper: LSFileWrapper
 
 let wrapper = directoryWrapper.withPath("hello.txt")
-let wrapper = directoryWrapper.fileWrappers?["hello.txt"]
 ```
 ## ⚖️ License
 LSFileWrapper is distributed under the [MIT license](LICENSE).
