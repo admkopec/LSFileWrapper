@@ -212,3 +212,5 @@ let directoryWrapper: LSFileWrapper
 let wrapper = directoryWrapper.withPath("hello.txt")
 let wrapper = directoryWrapper.fileWrappers?["hello.txt"]
 ```
+## ⚖️ License
+LSFileWrapper is distributed under the [MIT license](LICENSE).
