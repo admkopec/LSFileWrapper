@@ -224,6 +224,18 @@
     return [self fileWrapperWithPath:path create:NO isDirectory:NO];
 }
 
+- (NSArray<LSFileWrapper*> *)fileWrappersInPath:(NSString *)path
+{
+    NSMutableArray<LSFileWrapper*> *array = [[NSMutableArray alloc] init];
+    LSFileWrapper *dirFileWrapper = [self fileWrapperWithPath:path];
+    if (dirFileWrapper) {
+        [dirFileWrapper.fileWrappers enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, LSFileWrapper * _Nonnull obj, BOOL * _Nonnull stop) {
+            [array addObject:obj];
+        }];
+    }
+    return [array copy];
+}
+
 - (LSFileWrapper *)fileWrapperWithPath:(NSString *)path create:(BOOL)create isDirectory:(BOOL)isDir
 {
     NSString *dirpath = [path stringByDeletingLastPathComponent];

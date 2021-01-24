@@ -25,6 +25,8 @@
 		3B1C07D222D893A900244E2D /* LSFileWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LSFileWrapper.h; sourceTree = "<group>"; };
 		3B1C07D322D893A900244E2D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3B6C6ABD2353C47D00E989C2 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
+		3B73C1E325BDE2BB000E4B4E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		3B73C1E425BDE2BB000E4B4E /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -49,6 +51,8 @@
 			isa = PBXGroup;
 			children = (
 				3B6C6ABD2353C47D00E989C2 /* Package.swift */,
+				3B73C1E325BDE2BB000E4B4E /* README.md */,
+				3B73C1E425BDE2BB000E4B4E /* LICENSE */,
 				3B1C07D822D894BC00244E2D /* LSFileWrapper */,
 				3B1C07BB22D8922900244E2D /* Products */,
 			);
