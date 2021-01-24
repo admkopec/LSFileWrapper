@@ -122,7 +122,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @return Optional stored child wrapper as LSFileWrapper.
  */
-- (nullable LSFileWrapper *)fileWrapperWithPath:(nonnull NSString *)path;
+- (nullable LSFileWrapper *)fileWrapperWithPath:(nonnull NSString *)path NS_SWIFT_NAME(wrapper(with:));
 
 /**
  *  @brief Finds child wrapper at supplied path in the current LSFileWrapper and its children traversing by path.
@@ -142,11 +142,11 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @warning Should only be called on the LSFileWrapper of type Directory.
  *
- *  @param path Relative path of directory wrapper, whose children we want to get as NSString.
+ *  @param path Relative path of directory wrapper, whose children we want to get as NSString. "/" Can be used to get values for current wrapper.
  *
  *  @return Array of stored child wrappers, each as LSFileWrapper.
  */
-- (nonnull NSArray<LSFileWrapper*> *)fileWrappersInPath:(nonnull NSString *)path;
+- (nonnull NSArray<LSFileWrapper*> *)fileWrappersInPath:(nonnull NSString *)path NS_SWIFT_NAME(wrappers(in:));
 
 /**
  *  @brief Adds a new child wrapper with the supplied name to the current LSFileWrapper. If a wrapper is already present with the same name, then the new wrapper will be saved under the returned named to prevent collisions.
