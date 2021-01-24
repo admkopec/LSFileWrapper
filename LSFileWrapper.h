@@ -96,7 +96,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @param content New contents to store.
  */
-- (void)updateContent:(nonnull id<NSObject>)content;
+- (void)updateContent:(nonnull id<NSObject>)content NS_SWIFT_NAME(update(newContent:));;
 
 /**
  *  @brief Clears currently stored contents.
@@ -135,7 +135,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @return Optional stored child wrapper as LSFileWrapper.
  */
-- (nullable LSFileWrapper *)fileWrapperWithPath:(nonnull NSString *)path create:(BOOL)create isDirectory:(BOOL)isDir;
+- (nullable LSFileWrapper *)fileWrapperWithPath:(nonnull NSString *)path create:(BOOL)create isDirectory:(BOOL)isDir NS_SWIFT_NAME(wrapper(with:shouldCreate:isDirectory:));
 
 /**
  *  @brief Finds all first-degree child wrappers of a directory wrapper found at supplied path in the current LSFileWrapper and its children traversing by path.
@@ -159,7 +159,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @return Nil on error or the name of the added child wrapper as NSString.
  */
-- (nonnull NSString *)addFileWrapper:(nonnull LSFileWrapper *)fileWrapper withFilename:(nonnull NSString *)filename;
+- (nonnull NSString *)addFileWrapper:(nonnull LSFileWrapper *)fileWrapper withFilename:(nonnull NSString *)filename NS_SWIFT_NAME(add(wrapper:withFilename:));
 
 /**
  *  @brief Adds a new child wrapper with the supplied name to the current LSFileWrapper. If a wrapper is already present with the same name, then the new wrapper will replace it.
@@ -170,7 +170,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *  @param fileWrapper Child wrapper which should be stored in the current LSFileWrapper as LSFileWrapper.
  *  @param filename  Name of the child wrapper.
  */
-- (void)setFileWrapper:(nonnull LSFileWrapper *)fileWrapper withFilename:(nonnull NSString *)filename;
+- (void)setFileWrapper:(nonnull LSFileWrapper *)fileWrapper withFilename:(nonnull NSString *)filename NS_SWIFT_NAME(set(wrapper:withFilename:));
 
 /**
  *  @brief Removes the supplied child wrapper from the current LSFileWrapper.
@@ -179,7 +179,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @param fileWrapper Child wrapper which should be removed from the current LSFileWrapper as LSFileWrapper.
  */
-- (void)removeFileWrapper:(nonnull LSFileWrapper *)fileWrapper;
+- (void)removeFileWrapper:(nonnull LSFileWrapper *)fileWrapper NS_SWIFT_NAME(removeFileWrapper(_:));
 
 /**
  *  @brief Removes the  child wrapper with supplied name from the current LSFileWrapper.
@@ -201,7 +201,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @return Nil on error or the name of the added child file wrapper as NSString.
  */
-- (nonnull NSString *)addContent:(nonnull id<NSObject>)content_ withFilename:(nonnull NSString *)filename;
+- (nonnull NSString *)addContent:(nonnull id<NSObject>)content_ withFilename:(nonnull NSString *)filename NS_SWIFT_NAME(add(content:withFilename:));
 
 /**
  *  @brief Adds a new child wrapper of type File with the supplied name to the current LSFileWrapper.  If a wrapper is already present with the same name, then the new wrapper will replace it.
@@ -212,7 +212,7 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *  @param content_ Content which should be stored in the current LSFileWrapper.
  *  @param filename  Name of the child file wrapper.
  */
-- (void)setContent:(nonnull id<NSObject>)content_ withFilename:(nonnull NSString *)filename;
+- (void)setContent:(nonnull id<NSObject>)content_ withFilename:(nonnull NSString *)filename NS_SWIFT_NAME(set(content:withFilename:));
 
 // MARK: - Disk Write Methods
 
