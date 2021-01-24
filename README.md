@@ -120,16 +120,16 @@ NSString* fileName = [directoryWrapper addContent: @"Hello, World!" withFilename
 let directoryWrapper: LSFileWrapper
 
 // Adds an empty directory with preferred name
-let folderName = directoryWrapper.addFileWrapper(LSFileWrapper(directory: ()) withFilename: "Empty Directory Name")
+let folderName = directoryWrapper.add(wrapper: LSFileWrapper(directory: ()) withFilename: "Empty Directory Name")
 
 // Adds and overrides any wrappers matching the filename
-directoryWrapper.setFileWrapper(LSFileWrapper(directory: ()) withFilename: "Empty Directory Name")
+directoryWrapper.set(wrapper: LSFileWrapper(directory: ()) withFilename: "Empty Directory Name")
 
 // Adds a new text file. Content has to be of Objective-C type, i.e. NSString, NSData... or casted with `as` operator
-let filename = directoryWrapper.addContent(NSString("Hello, World!"), withFilename: "hello.txt")
+let filename = directoryWrapper.add(content: NSString("Hello, World!"), withFilename: "hello.txt")
 
 // Adds and overrides any files matching the filename. This method can be used when changes are made to the file
-directoryWrapper.setContent("Hello, World!" as NSString, withFilename: "hello.txt")
+directoryWrapper.set(content: "Hello, World!" as NSString, withFilename: "hello.txt")
 ```
 ### Reading Contents
 > **_Notice:_** File wrappers only.
@@ -163,7 +163,7 @@ LSFileWrapper* fileWrapper;
 ```swift
 let fileWrapper: LSFileWrapper
 
-fileWrapper.updateContent("Hello, World!" as NSString)
+fileWrapper.update(newContent: "Hello, World!" as NSString)
 ```
 ### Removing wrappers
 > **_Notice:_** Directory wrappers only.
