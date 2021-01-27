@@ -179,16 +179,16 @@ FOUNDATION_EXPORT const unsigned char LSFileWrapperVersionString[];
  *
  *  @param fileWrapper Child wrapper which should be removed from the current LSFileWrapper as LSFileWrapper.
  */
-- (void)removeFileWrapper:(nonnull LSFileWrapper *)fileWrapper NS_SWIFT_NAME(removeFileWrapper(_:));
+- (void)removeFileWrapper:(nonnull LSFileWrapper *)fileWrapper NS_SWIFT_NAME(removeWrapper(_:));
 
 /**
- *  @brief Removes the  child wrapper with supplied name from the current LSFileWrapper.
+ *  @brief Removes the child wrapper with supplied name from the current LSFileWrapper.
  *
  *  @warning Should only be called on the LSFileWrapper of type Directory.
  *
  *  @param path Relative path to child wrapper which should be removed from the current LSFileWrapper tree.
  */
-- (void)removeFileWrapperWithPath:(nonnull NSString *)path NS_SWIFT_NAME(removeFileWrapper(with:));
+- (void)removeFileWrapperWithPath:(nonnull NSString *)path NS_SWIFT_NAME(removeWrapper(with:));
 
 /**
  *  @brief Adds a new child wrapper of type File with the supplied name to the current LSFileWrapper. If a wrapper is already present with the same name, then the new wrapper will be saved under the returned named to prevent collisions.
