@@ -152,7 +152,7 @@ let optionalString = fileWrapper.string()
 ### Updating Contents
 > **_Notice:_** File wrappers only.
 
-To update the contents of a regular file wrapper use `-updateContent`.
+To update the contents of a regular file wrapper use `-updateContent`, named `update(newContent:)` in Swift.
 ```objective-c
 LSFileWrapper* fileWrapper;
 
@@ -168,7 +168,7 @@ fileWrapper.update(newContent: "Hello, World!" as NSString)
 ### Removing wrappers
 > **_Notice:_** Directory wrappers only.
 
-To remove a file wrapper from existing wrapper use `-removeFileWrapper`.
+To remove a file wrapper from existing wrapper use `-removeFileWrapper` or `removeFileWrapperWithPath`, named `removeWrapper()` or `removeWrapper(with:)` in Swift.
 ```objective-c
 LSFileWrapper* directoryWrapper;
 
@@ -187,17 +187,17 @@ if (wrapperToRemove) {
 let directoryWrapper: LSFileWrapper
 
 // Using a path, can also contain "/" for subfolder search, all children can be removed
-directoryWrapper.removeFileWrapper(with: "hello.txt")
+directoryWrapper.removeWrapper(with: "hello.txt")
 
 // Using an instance of a wrapper. Path can also contain "/" for subfolder search, however only 'first' children can be removed.
-if let wrapperToRemove = directoryWrapper.withPath("hello.txt") {
-    directoryWrapper.removeFileWrapper(wrapperToRemove)
+if let wrapperToRemove = directoryWrapper.wrapper(with: "hello.txt") {
+    directoryWrapper.removeWrapper(wrapperToRemove)
 }
 ```
 ### Getting child wrappers
 > **_Notice:_** Directory wrappers only.
 
-To get a wrapper from a directory wrapper call `-fileWrapperWithPath`, this will also traverse all children based on supplied path.
+To get a wrapper from a directory wrapper call `-fileWrapperWithPath`, named `wrappers(with:)` in Swift, this will also traverse all children based on supplied path.
 ```objective-c
 LSFileWrapper* directoryWrapper;
 
@@ -211,7 +211,7 @@ let directoryWrapper: LSFileWrapper
 let wrapper = directoryWrapper.wrapper(with: "hello.txt")
 ```
 
-To get all first-degree child wrappers from a directory wrapper call `-fileWrappersInPath`, this will also traverse all children based on supplied path.
+To get all first-degree child wrappers from a directory wrapper call `-fileWrappersInPath`, named `wrappers(in:)` in Swift, this will also traverse all children based on supplied path.
 ```objective-c
 LSFileWrapper* directoryWrapper;
 
