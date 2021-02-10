@@ -22,7 +22,7 @@ jobs:
           echo Using default scheme: $default
       - name: Build
         env:
-          scheme: ${{ 'default' }}
+          scheme: ${{ 'LSFileWrapper (iOS)' }}
           platform: ${{ 'iOS Simulator' }}
         run: |
           device=`instruments -s -devices | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}'`
