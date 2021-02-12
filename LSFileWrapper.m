@@ -227,7 +227,7 @@
 - (NSArray<LSFileWrapper*> *)fileWrappersInPath:(NSString *)path
 {
     NSMutableArray<LSFileWrapper*> *array = [[NSMutableArray alloc] init];
-    LSFileWrapper *dirFileWrapper = [self fileWrapperWithPath:path];
+    LSFileWrapper *dirFileWrapper = ([path  isEqual: @"/"] || [path  isEqual: @""]) ? self : [self fileWrapperWithPath:path];
     if (dirFileWrapper) {
         [dirFileWrapper.fileWrappers enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, LSFileWrapper * _Nonnull obj, BOOL * _Nonnull stop) {
             [array addObject:obj];
