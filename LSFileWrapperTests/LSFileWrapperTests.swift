@@ -29,7 +29,7 @@ class LSFileWrapperTests: XCTestCase {
     }
     
     func testUpdateDataContent() {
-        // This is a test case for testing update(newContent:) method
+        // This is a test case for testing update(newContent:) method using raw Data
         let fileWrapper = LSFileWrapper(file: ())
         fileWrapper.update(newContent: Data("Hello World!".utf8) as NSData)
         
@@ -40,7 +40,7 @@ class LSFileWrapperTests: XCTestCase {
     }
     
     func testUpdateDictionaryContent() {
-        // This is a test case for testing update(newContent:) method
+        // This is a test case for testing update(newContent:) method using simple Dictionary
         let testDict = ["Name": "LSFileWrapper", "Platforms": "macOS, iOS", "Version": "2"]
         let fileWrapper = LSFileWrapper(file: ())
         fileWrapper.update(newContent: testDict as NSDictionary)
@@ -50,7 +50,7 @@ class LSFileWrapperTests: XCTestCase {
     }
     
     func testUpdateAnyDictionaryContent() {
-        // This is a test case for testing update(newContent:) method
+        // This is a test case for testing update(newContent:) method using an advanced Dictionary
         let testDict = ["Name": "LSFileWrapper", "Platforms": ["macOS", "iOS"], "Version": 2] as [String : Any]
         let fileWrapper = LSFileWrapper(file: ())
         fileWrapper.update(newContent: testDict as NSDictionary)
@@ -64,7 +64,7 @@ class LSFileWrapperTests: XCTestCase {
     }
     
     func testUpdateImageContent() {
-        // This is a test case for testing update(newContent:) method
+        // This is a test case for testing update(newContent:) method using an Image
         let testImg = NSImage(named: "NSApplicationIcon") ?? NSImage()
         let fileWrapper = LSFileWrapper(file: ())
         fileWrapper.update(newContent: testImg)
@@ -84,6 +84,63 @@ class LSFileWrapperTests: XCTestCase {
         XCTAssertNotNil(fileWrapper?.string())
         
         XCTAssertEqual(fileWrapper?.string(), "Hello World!")
+    }
+    
+    func testSetContent() {
+        // This is a test case for testing set(content: withFilename:) method
+        let wrapper = LSFileWrapper(directory: ())
+        wrapper.set(content: "Hello World!" as NSString, withFilename: "hello.txt")
+        
+        let fileWrapper = wrapper.wrapper(with: "hello.txt")
+        
+        XCTAssertNotNil(fileWrapper)
+        XCTAssertNotNil(fileWrapper?.string())
+        
+        XCTAssertEqual(fileWrapper?.string(), "Hello World!")
+    }
+    
+    func testAddContentNameAlteration() {
+        // This is a test case for testing add(content: withFilename:) method when a file already exists
+        let wrapper = LSFileWrapper(directory: ())
+        wrapper.add(content: "Hello World!" as NSString, withFilename: "hello.txt")
+        let newName = wrapper.add(content: "Hello Altered World!" as NSString, withFilename: "hello.txt")
+        
+        XCTAssertNotEqual(newName, "hello.txt")
+        XCTAssertEqual(newName, "hello 1.txt")
+        
+        let fileWrapper = wrapper.wrapper(with: "hello.txt")
+        let secondWrapper = wrapper.wrapper(with: newName)
+        
+        XCTAssertNotNil(fileWrapper)
+        XCTAssertNotNil(fileWrapper?.string())
+        
+        XCTAssertEqual(fileWrapper?.string(), "Hello World!")
+        
+        XCTAssertNotNil(secondWrapper)
+        XCTAssertNotNil(secondWrapper?.string())
+        
+        XCTAssertEqual(secondWrapper?.string(), "Hello Altered World!")
+    }
+    
+    func testSetContentReplacement() {
+        // This is a test case for testing set(content: withFilename:) method when a file already exists
+        let wrapper = LSFileWrapper(directory: ())
+        wrapper.add(content: "Hello World!" as NSString, withFilename: "hello.txt")
+                
+        let fileWrapper = wrapper.wrapper(with: "hello.txt")
+        
+        XCTAssertNotNil(fileWrapper)
+        XCTAssertNotNil(fileWrapper?.string())
+        
+        XCTAssertEqual(fileWrapper?.string(), "Hello World!")
+        
+        wrapper.set(content: "Hello Altered World!" as NSString, withFilename: "hello.txt")
+        let secondWrapper = wrapper.wrapper(with: "hello.txt")
+        
+        XCTAssertNotNil(secondWrapper)
+        XCTAssertNotNil(secondWrapper?.string())
+        
+        XCTAssertEqual(secondWrapper?.string(), "Hello Altered World!")
     }
     
     func testRemoveContent() {
@@ -141,6 +198,7 @@ class LSFileWrapperTests: XCTestCase {
     }
     
     func testWriteToURL() throws {
+        // This is a test case for testing write(to:) method
         let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("testWrite.package")
         let testDict = ["Name": "LSFileWrapper", "Platforms": ["macOS", "iOS"], "Version": 2] as [String : Any]
         let testImg = NSImage(named: "NSApplicationIcon") ?? NSImage()
@@ -179,6 +237,7 @@ class LSFileWrapperTests: XCTestCase {
     }
     
     func testWriteFileToURL() throws {
+        // This is a test case for testing write(to:) method on regular file wrappers
         let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("hello.txt")
         let fileWrapper = LSFileWrapper(file: ())
         fileWrapper.update(newContent: "Hello World!" as NSString)
@@ -199,6 +258,7 @@ class LSFileWrapperTests: XCTestCase {
     }
     
     func testInitWithContentsAutomaticDirDiscovery() throws {
+        // This is a test case for testing initializer's isDirectory property
         let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("testAutoDir.package")
         let wrapper = LSFileWrapper(directory: ())
         wrapper.add(content: "Hello World!" as NSString, withFilename: "hello.txt")
@@ -218,6 +278,7 @@ class LSFileWrapperTests: XCTestCase {
     }
     
     func testWriteUpdatesToURL() throws {
+        // This is a test case for testing writeUpdates(to:) method
         let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("testWriteUpdates.package")
         let wrapper = LSFileWrapper(directory: ())
         wrapper.add(content: "Hello World!" as NSString, withFilename: "hello.txt")
