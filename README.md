@@ -5,7 +5,7 @@
 [![Build iOS](https://github.com/admkopec/LSFileWrapper/workflows/iOS/badge.svg)](https://github.com/admkopec/LSFileWrapper/actions?query=workflow%3A%22iOS%22)
 [![Build macOS](https://github.com/admkopec/LSFileWrapper/workflows/macOS/badge.svg)](https://github.com/admkopec/LSFileWrapper/actions?query=workflow%3A%22macOS%22)
 
-Replacement for NSFileWrapper that loads / saves content on-demand. Understands how to save / serialize objects like NSData, UIImage, NSImage, NSDictionary, etc...
+Replacement for NSFileWrapper that loads / saves content on-demand. It is specifically designed to handle large packages / bundles or directories with multiple file entries. It requires minimal memory footprint, as it doesn't try to load everything into memory (unlike Apple's NSFileWrapper), but rather tries to memory map the single files only when they're actively being used. This library also has built-in convenience methods for saving / serializing objects like NSData, UIImage, NSImage, NSDictionary, etc...
 
 ## 💻 Requirements
 LSFileWrapper works on Mac OS X 10.7+ and iOS 8.0 or newer. The Xcode project contains two framework targets for:
