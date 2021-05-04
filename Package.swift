@@ -19,6 +19,7 @@ let package = Package(
         ],
         dependencies: [],
         targets: [
-            .target(name: "LSFileWrapper", path: "", publicHeadersPath: "")
+            .target(name: "LSFileWrapper", dependencies: [], path: "", exclude: ["LSFileWrapperTests"], publicHeadersPath: "Headers"),
+            .testTarget(name: "LSFileWrapperTests", dependencies: ["LSFileWrapper"], path: "LSFileWrapperTests")
         ]
 )
