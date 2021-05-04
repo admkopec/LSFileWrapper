@@ -10,6 +10,7 @@
 #if TARGET_OS_IPHONE || TARGET_OS_SIMULATOR
 #import <AssetsLibrary/AssetsLibrary.h>
 #import <UIKit/UIKit.h>
+#import "LSDocument.h"
 #elif TARGET_OS_OSX
 #import <AppKit/AppKit.h>
 #endif
