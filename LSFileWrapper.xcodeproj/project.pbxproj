@@ -32,9 +32,9 @@
 		3B1C07BE22D8922900244E2D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3B1C07C522D892C900244E2D /* LSDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LSDocument.m; sourceTree = SOURCE_ROOT; };
 		3B1C07C622D892C900244E2D /* LSFileWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LSFileWrapper.m; sourceTree = SOURCE_ROOT; };
-		3B1C07C722D892C900244E2D /* LSDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LSDocument.h; sourceTree = SOURCE_ROOT; };
+		3B1C07C722D892C900244E2D /* LSDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LSDocument.h; path = Headers/LSDocument.h; sourceTree = SOURCE_ROOT; };
 		3B1C07D022D893A900244E2D /* LSFileWrapper.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LSFileWrapper.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		3B1C07D222D893A900244E2D /* LSFileWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LSFileWrapper.h; sourceTree = "<group>"; };
+		3B1C07D222D893A900244E2D /* LSFileWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LSFileWrapper.h; path = Headers/LSFileWrapper.h; sourceTree = "<group>"; };
 		3B1C07D322D893A900244E2D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3B599D4025D697FB00675DE0 /* LSFileWrapperTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LSFileWrapperTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B599D4225D697FB00675DE0 /* LSFileWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSFileWrapperTests.swift; sourceTree = "<group>"; };
