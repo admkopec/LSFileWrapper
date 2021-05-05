@@ -18,6 +18,23 @@ class LSFileWrapperTests: XCTestCase {
     override func tearDownWithError() throws {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
+    
+    #if os(iOS)
+    var sampleImage: UIImage {
+        let rect = CGRect(origin: .zero, size: CGSize(width: 200, height: 200))
+        UIGraphicsBeginImageContextWithOptions(rect.size, false, 0.0)
+        color.setFill()
+        UIRectFill(rect)
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        guard let cgImage = image?.CGImage else { return nil }
+        return UIImage(CGImage: cgImage)
+    }
+    #else
+    var sampleImage: NSImage {
+        NSImage(named: "NSApplicationIcon") ?? NSImage()
+    }
+    #endif
 
     func testUpdateContent() {
         // This is a test case for testing update(newContent:) method
@@ -65,7 +82,7 @@ class LSFileWrapperTests: XCTestCase {
     
     func testUpdateImageContent() {
         // This is a test case for testing update(newContent:) method using an Image
-        let testImg = NSImage(named: "NSApplicationIcon") ?? NSImage()
+        let testImg = sampleImage
         let fileWrapper = LSFileWrapper(file: ())
         fileWrapper.update(newContent: testImg)
         
@@ -201,7 +218,7 @@ class LSFileWrapperTests: XCTestCase {
         // This is a test case for testing write(to:) method
         let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("testWrite.package")
         let testDict = ["Name": "LSFileWrapper", "Platforms": ["macOS", "iOS"], "Version": 2] as [String : Any]
-        let testImg = NSImage(named: "NSApplicationIcon") ?? NSImage()
+        let testImg = sampleImage
         let wrapper = LSFileWrapper(directory: ())
         wrapper.add(content: "Hello World!" as NSString, withFilename: "hello.txt")
         wrapper.add(content: testDict as NSDictionary, withFilename: "hello.plist")
