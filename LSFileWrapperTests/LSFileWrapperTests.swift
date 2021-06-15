@@ -3,7 +3,9 @@
 //  LSFileWrapperTests
 //
 //  Created by Adam Kopeć on 12/02/2021.
-//  Copyright © 2021 Adam Kopeć. All rights reserved.
+//  Copyright © 2021 Adam Kopeć.
+//
+//  Licensed under the MIT License
 //
 
 import XCTest
